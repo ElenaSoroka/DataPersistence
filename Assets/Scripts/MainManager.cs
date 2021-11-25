@@ -11,6 +11,7 @@ public class MainManager : MonoBehaviour
     public Rigidbody Ball;
 
     public Text ScoreText;
+    public Text bestScoreText;
     public GameObject GameOverText;
     
     private bool m_Started = false;
@@ -18,7 +19,10 @@ public class MainManager : MonoBehaviour
     
     private bool m_GameOver = false;
 
-    
+    private int bestScore;
+    private string bestName;
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -45,6 +49,7 @@ public class MainManager : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 m_Started = true;
+                UpdateBestScore();
                 float randomDirection = Random.Range(-1.0f, 1.0f);
                 Vector3 forceDir = new Vector3(randomDirection, 1, 0);
                 forceDir.Normalize();
@@ -70,7 +75,35 @@ public class MainManager : MonoBehaviour
 
     public void GameOver()
     {
+        int checkScore = 0;
+        string checkName = "";
+
+
         m_GameOver = true;
         GameOverText.SetActive(true);
+
+        MainManagerX.Instance.LoadScore(ref checkName, ref checkScore);
+        if (checkScore < m_Points)
+        {
+            MainManagerX.Instance.SaveScore(MainManagerX.Instance.currentName, m_Points);
+            bestScoreText.text = $"Best score: {MainManagerX.Instance.currentName} - {m_Points}"; 
+        }
+    }
+
+    void Awake()
+    {
+        m_Points = 0;
+        UpdateBestScore();
+    }
+
+    void UpdateBestScore()
+    { 
+        MainManagerX.Instance.LoadScore(ref bestName, ref bestScore);
+        bestScoreText.text = $"Best score: {bestName} - {bestScore}";
+    }
+
+    public void BackToMenu()
+    {
+        SceneManager.LoadScene(0);
     }
 }
